@@ -1,0 +1,13 @@
+<assembly>
+    <id>release</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>target/dist</directory>
+            <outputDirectory>expat</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>
