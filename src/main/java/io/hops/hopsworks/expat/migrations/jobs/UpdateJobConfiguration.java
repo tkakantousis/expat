@@ -40,13 +40,13 @@ public class UpdateJobConfiguration implements MigrateStep {
 
       PreparedStatement updateJSONConfigStmt = connection.prepareStatement(UPDATE_SPECIFIC_JOB_JSON_CONFIG);
       while (allJobsResultSet.next()) {
-        int id = allJobsResultSet.getInt(0);
-        String oldConfig = allJobsResultSet.getString(1);
+        int id = allJobsResultSet.getInt(1);
+        String oldConfig = allJobsResultSet.getString(2);
 
         String newConfig = convertJSON(oldConfig);
 
-        updateJSONConfigStmt.setString(0, newConfig);
-        updateJSONConfigStmt.setInt(1, id);
+        updateJSONConfigStmt.setString(1, newConfig);
+        updateJSONConfigStmt.setInt(2, id);
         updateJSONConfigStmt.addBatch();
       }
       updateJSONConfigStmt.executeBatch();
@@ -184,6 +184,6 @@ public class UpdateJobConfiguration implements MigrateStep {
 
   @Override
   public void rollback() throws RollbackException {
-    //migration is done inside a transaction so will handle rollback
+    //migration is done inside a transaction so rollback is handled by the database
   }
 }
