@@ -17,7 +17,9 @@
 
 package io.hops.hopsworks.expat.migrations;
 
+import java.sql.SQLException;
+
 public interface MigrateStep {
-  void migrate() throws MigrationException;
+  void migrate() throws MigrationException, SQLException;
   void rollback() throws RollbackException;
 }
