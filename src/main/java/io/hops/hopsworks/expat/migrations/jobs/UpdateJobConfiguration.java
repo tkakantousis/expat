@@ -253,7 +253,7 @@ public class UpdateJobConfiguration implements MigrateStep {
           renameIfKeyExists(consumerObj, "id", "ID");
           renameIfKeyExists(consumerObj, "name", "NAME");
         } else {
-          JSONArray consumerArr = (JSONArray) kafkaObj.get("consumerGroups");
+          JSONArray consumerArr = (JSONArray) kafkaObj.get("CONSUMER_GROUPS");
           for (int i = 0; i < consumerArr.length(); i++) {
             JSONObject topicObj = (JSONObject) consumerArr.get(i);
             renameIfKeyExists(topicObj, "id", "ID");
