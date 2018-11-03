@@ -133,7 +133,7 @@ public class UpdateJobConfiguration implements MigrateStep {
       renameIfKeyExists(config, "appName", "APPNAME");
       renameIfKeyExists(config, "mainClass", "MAINCLASS");
       renameIfKeyExists(config, "properties", "PROPERTIES");
-      renameIfKeyExists(config, "queue", "QUEUE");
+      renameIfKeyExists(config, "amQueue", "QUEUE");
 
       renameIfKeyExists(config, "amMemory", "AMMEM");
       renameIfKeyExists(config, "amVCores", "AMCORS");
