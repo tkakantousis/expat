@@ -207,14 +207,14 @@ public class UpdateJobConfiguration implements MigrateStep {
 
       if (kafkaObj.has("CONSUMER_GROUPS")) {
         renameIfKeyExists(kafkaObj, "CONSUMER_GROUPS", "consumerGroups");
-        if (kafkaObj.get("topics") instanceof JSONObject) {
-          JSONObject topicObj = (JSONObject) kafkaObj.get("consumerGroups");
-          renameIfKeyExists(topicObj, "ID", "id");
-          renameIfKeyExists(topicObj, "NAME", "name");
+        if (kafkaObj.get("consumerGroups") instanceof JSONObject) {
+          JSONObject consumerObj = (JSONObject) kafkaObj.get("consumerGroups");
+          renameIfKeyExists(consumerObj, "ID", "id");
+          renameIfKeyExists(consumerObj, "NAME", "name");
         } else {
-          JSONArray topicsArr = (JSONArray) kafkaObj.get("consumerGroups");
-          for (int i = 0; i < topicsArr.length(); i++) {
-            JSONObject topicObj = (JSONObject) topicsArr.get(i);
+          JSONArray consumerArr = (JSONArray) kafkaObj.get("consumerGroups");
+          for (int i = 0; i < consumerArr.length(); i++) {
+            JSONObject topicObj = (JSONObject) consumerArr.get(i);
             renameIfKeyExists(topicObj, "ID", "id");
             renameIfKeyExists(topicObj, "NAME", "name");
           }
@@ -248,14 +248,14 @@ public class UpdateJobConfiguration implements MigrateStep {
 
       if (kafkaObj.has("consumerGroups")) {
         renameIfKeyExists(kafkaObj, "consumerGroups", "CONSUMER_GROUPS");
-        if (kafkaObj.get("topics") instanceof JSONObject) {
-          JSONObject topicObj = (JSONObject) kafkaObj.get("CONSUMER_GROUPS");
-          renameIfKeyExists(topicObj, "id", "ID");
-          renameIfKeyExists(topicObj, "name", "NAME");
+        if (kafkaObj.get("CONSUMER_GROUPS") instanceof JSONObject) {
+          JSONObject consumerObj = (JSONObject) kafkaObj.get("CONSUMER_GROUPS");
+          renameIfKeyExists(consumerObj, "id", "ID");
+          renameIfKeyExists(consumerObj, "name", "NAME");
         } else {
-          JSONArray topicsArr = (JSONArray) kafkaObj.get("consumerGroups");
-          for (int i = 0; i < topicsArr.length(); i++) {
-            JSONObject topicObj = (JSONObject) topicsArr.get(i);
+          JSONArray consumerArr = (JSONArray) kafkaObj.get("consumerGroups");
+          for (int i = 0; i < consumerArr.length(); i++) {
+            JSONObject topicObj = (JSONObject) consumerArr.get(i);
             renameIfKeyExists(topicObj, "id", "ID");
             renameIfKeyExists(topicObj, "name", "NAME");
           }
