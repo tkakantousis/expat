@@ -5,6 +5,7 @@ import io.hops.hopsworks.expat.migrations.MigrateStep;
 import io.hops.hopsworks.expat.migrations.MigrationException;
 import io.hops.hopsworks.expat.migrations.RollbackException;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.*;
@@ -190,12 +191,26 @@ public class UpdateJobConfiguration implements MigrateStep {
 
       if (kafkaObj.has("TOPICS")) {
         renameIfKeyExists(kafkaObj, "TOPICS", "topics");
-        JSONObject topicsObj = (JSONObject) kafkaObj.get("topics");
-        Set<String> topics = topicsObj.keySet();
-        for (String topic : topics) {
-          JSONObject topicObj = (JSONObject) topicsObj.get(topic);
-          renameIfKeyExists(topicObj, "TICKED", "ticked");
-          renameIfKeyExists(topicObj, "NAME", "name");
+        if(kafkaObj.get("topics") instanceof JSONObject) {
+          JSONObject topicsObj = (JSONObject) kafkaObj.get("topics");
+          Set<String> topics = topicsObj.keySet();
+          for (String topic : topics) {
+            JSONObject topicObj = (JSONObject) topicsObj.get(topic);
+            renameIfKeyExists(topicObj, "TICKED", "ticked");
+            renameIfKeyExists(topicObj, "NAME", "name");
+          }
+        } else {
+          JSONArray topicsArr = (JSONArray) kafkaObj.get("topics");
+          for(int i = 0; i < topicsArr.length(); i++) {
+            JSONObject topicsObj = (JSONObject) topicsArr.get(i);
+            Set<String> topics = topicsObj.keySet();
+            for (String topic : topics) {
+              JSONObject topicObj = (JSONObject) topicsObj.get(topic);
+              renameIfKeyExists(topicObj, "TICKED", "ticked");
+              renameIfKeyExists(topicObj, "NAME", "name");
+            }
+          }
+
         }
       }
 
@@ -221,12 +236,26 @@ public class UpdateJobConfiguration implements MigrateStep {
 
       if (kafkaObj.has("topics")) {
         renameIfKeyExists(kafkaObj, "topics", "TOPICS");
-        JSONObject topicsObj = (JSONObject) kafkaObj.get("TOPICS");
-        Set<String> topics = topicsObj.keySet();
-        for (String topic : topics) {
-          JSONObject topicObj = (JSONObject) topicsObj.get(topic);
-          renameIfKeyExists(topicObj, "ticked", "TICKED");
-          renameIfKeyExists(topicObj, "name", "NAME");
+        if(kafkaObj.get("TOPICS") instanceof JSONObject) {
+          JSONObject topicsObj = (JSONObject) kafkaObj.get("TOPICS");
+          Set<String> topics = topicsObj.keySet();
+          for (String topic : topics) {
+            JSONObject topicObj = (JSONObject) topicsObj.get(topic);
+            renameIfKeyExists(topicObj, "ticked", "TICKED");
+            renameIfKeyExists(topicObj, "name", "NAME");
+          }
+        } else {
+          JSONArray topicsArr = (JSONArray) kafkaObj.get("TOPICS");
+          for(int i = 0; i < topicsArr.length(); i++) {
+            JSONObject topicsObj = (JSONObject) topicsArr.get(i);
+            Set<String> topics = topicsObj.keySet();
+            for (String topic : topics) {
+              JSONObject topicObj = (JSONObject) topicsObj.get(topic);
+              renameIfKeyExists(topicObj, "ticked", "TICKED");
+              renameIfKeyExists(topicObj, "name", "NAME");
+            }
+          }
+
         }
       }
 
