@@ -35,17 +35,21 @@ public class UpdateJobConfiguration implements MigrateStep {
       throw new MigrationException(errorMsg, ex);
     }
 
+    Statement stmt = null;
+    PreparedStatement updateJSONConfigStmt = null;
     try {
       connection.setAutoCommit(false);
-      Statement stmt = connection.createStatement();
+      stmt = connection.createStatement();
       ResultSet allJobsResultSet = stmt.executeQuery(GET_ALL_JOB_CONFIGURATIONS);
 
-      PreparedStatement updateJSONConfigStmt = connection.prepareStatement(UPDATE_SPECIFIC_JOB_JSON_CONFIG);
+      updateJSONConfigStmt = connection.prepareStatement(UPDATE_SPECIFIC_JOB_JSON_CONFIG);
       while (allJobsResultSet.next()) {
         int id = allJobsResultSet.getInt(1);
         String oldConfig = allJobsResultSet.getString(2);
 
+        LOGGER.log(Level.INFO, "Trying to migrate JobID: " + id);
         String newConfig = convertJSON(oldConfig, true);
+        LOGGER.log(Level.INFO, "Successfully migrated JobID: " + id);
 
         updateJSONConfigStmt.setString(1, newConfig);
         updateJSONConfigStmt.setInt(2, id);
@@ -58,6 +62,8 @@ public class UpdateJobConfiguration implements MigrateStep {
       String errorMsg = "Could not migrate job configurations";
       LOGGER.log(Level.SEVERE, errorMsg);
       throw new MigrationException(errorMsg, ex);
+    } finally {
+      closeConnections(stmt, updateJSONConfigStmt);
     }
     LOGGER.log(Level.INFO, "Finished jobConfig migration");
   }
@@ -316,17 +322,22 @@ public class UpdateJobConfiguration implements MigrateStep {
         throw new RollbackException(errorMsg, ex);
       }
 
+      Statement stmt = null;
+      PreparedStatement updateJSONConfigStmt = null;
+
       try {
         connection.setAutoCommit(false);
-        Statement stmt = connection.createStatement();
+        stmt = connection.createStatement();
         ResultSet allJobsResultSet = stmt.executeQuery(GET_ALL_JOB_CONFIGURATIONS);
 
-        PreparedStatement updateJSONConfigStmt = connection.prepareStatement(UPDATE_SPECIFIC_JOB_JSON_CONFIG);
+        updateJSONConfigStmt = connection.prepareStatement(UPDATE_SPECIFIC_JOB_JSON_CONFIG);
         while (allJobsResultSet.next()) {
           int id = allJobsResultSet.getInt(1);
           String oldConfig = allJobsResultSet.getString(2);
 
+          LOGGER.log(Level.INFO, "Trying to rollback JobID: " + id);
           String newConfig = convertJSON(oldConfig, false);
+          LOGGER.log(Level.INFO, "Successfully rollbacked JobID: " + id);
 
           updateJSONConfigStmt.setString(1, newConfig);
           updateJSONConfigStmt.setInt(2, id);
@@ -339,7 +350,22 @@ public class UpdateJobConfiguration implements MigrateStep {
         String errorMsg = "Could not migrate job configurations";
         LOGGER.log(Level.SEVERE, errorMsg);
         throw new RollbackException(errorMsg, ex);
+      } finally {
+        closeConnections(stmt, updateJSONConfigStmt);
       }
     LOGGER.log(Level.INFO, "Starting jobConfig rollback");
+  }
+
+  private void closeConnections(Statement stmt, PreparedStatement preparedStatement) {
+    try {
+      if(stmt != null) {
+        stmt.close();
+      }
+      if(preparedStatement != null) {
+        preparedStatement.close();
+      }
+    } catch(SQLException ex) {
+      //do nothing
+    }
   }
 }
