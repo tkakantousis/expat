@@ -25,6 +25,7 @@ public class UpdateJobConfiguration implements MigrateStep {
 
   @Override
   public void migrate() throws MigrationException {
+    LOGGER.log(Level.INFO, "Starting jobConfig migration");
     try {
       setup();
     } catch (SQLException | ConfigurationException ex) {
@@ -57,6 +58,7 @@ public class UpdateJobConfiguration implements MigrateStep {
       LOGGER.log(Level.SEVERE, errorMsg);
       throw new MigrationException(errorMsg, ex);
     }
+    LOGGER.log(Level.INFO, "Finished jobConfig migration");
   }
 
   //This function converts an old jobConfig to the new format
@@ -284,6 +286,7 @@ public class UpdateJobConfiguration implements MigrateStep {
 
   @Override
   public void rollback() throws RollbackException {
+    LOGGER.log(Level.INFO, "Starting jobConfig rollback");
       try {
         setup();
       } catch (SQLException | ConfigurationException ex) {
@@ -316,5 +319,6 @@ public class UpdateJobConfiguration implements MigrateStep {
         LOGGER.log(Level.SEVERE, errorMsg);
         throw new RollbackException(errorMsg, ex);
       }
+    LOGGER.log(Level.INFO, "Starting jobConfig rollback");
   }
 }
