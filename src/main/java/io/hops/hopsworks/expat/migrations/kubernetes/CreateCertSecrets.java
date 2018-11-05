@@ -85,9 +85,10 @@ public class CreateCertSecrets implements MigrateStep {
 
       while (resultSet.next()) {
         String projectName = resultSet.getString("projectname");
-        String nsName = projectName.replace("_", "-");
+        String nsName = projectName.toLowerCase().replaceAll("[^a-z0-9-]", "-");
 
-        String kubeUsername = nsName + "--" + resultSet.getString("username");
+        String kubeUsername = nsName + "--" +
+            resultSet.getString("username").toLowerCase().replaceAll("[^a-z0-9]", "-");
         String hopsUsername = projectName + "__" + resultSet.getString("username");
 
         try {
