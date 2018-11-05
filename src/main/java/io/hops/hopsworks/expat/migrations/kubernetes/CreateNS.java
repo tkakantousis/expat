@@ -58,7 +58,7 @@ public class CreateNS implements MigrateStep {
 
       while (resultSet.next()) {
         String projectName = resultSet.getString(1);
-        String nsName = projectName.replace("_", "-");
+        String nsName = projectName.toLowerCase().replaceAll("[^a-z0-9-]", "-");
         try {
           client.namespaces().createOrReplaceWithNew()
               .withNewMetadata()
