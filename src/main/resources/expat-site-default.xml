@@ -49,9 +49,5 @@
         io.hops.hopsworks.expat.migrations.x509.GenerateUserCertificates
         io.hops.hopsworks.expat.migrations.x509.GenerateProjectCertificates
     </version-060>
-
-    <version-070>
-        io.hops.hopsworks.expat.migrations.jobs.UpdateJobConfiguration
-    </version-070>
 </expat>
 
