@@ -89,6 +89,10 @@ public class CreateCertSecrets implements MigrateStep {
 
         String kubeUsername = nsName + "--" +
             resultSet.getString("username").toLowerCase().replaceAll("[^a-z0-9]", "-");
+        // In the cluster we have usernames that, after the replace, end with -. In this case we add a 0 after it
+        if (kubeUsername.endsWith("-")) {
+          kubeUsername = kubeUsername + "0";
+        }
         String hopsUsername = projectName + "__" + resultSet.getString("username");
 
         try {
