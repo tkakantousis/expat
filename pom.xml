@@ -50,6 +50,7 @@
             <groupId>io.hops.hopsworks</groupId>
             <artifactId>hopsworks-common</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>io.hops</groupId>
