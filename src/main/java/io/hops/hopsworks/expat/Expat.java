@@ -66,6 +66,11 @@ public class Expat {
     Configuration config = ConfigurationBuilder.getConfiguration();
     String migrations = config.getString("version-" + version.replace(".", ""));
 
+    if (migrations == null) {
+      // No migrations to apply
+      return;
+    }
+
     String[] migrationClasses = migrations.split("\n");
     for (String migration : migrationClasses) {
       MigrateStep step = (MigrateStep) Class.forName(migration.trim()).newInstance();
