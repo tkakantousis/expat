@@ -64,6 +64,8 @@ public class Expat {
       ClassNotFoundException, InstantiationException, IllegalAccessException {
 
     Configuration config = ConfigurationBuilder.getConfiguration();
+    // If the version contains SNAPSHOT, remove it
+    version = version.replace("-SNAPSHOT", "");
     String migrations = config.getString("version-" + version.replace(".", ""));
 
     if (migrations == null) {
