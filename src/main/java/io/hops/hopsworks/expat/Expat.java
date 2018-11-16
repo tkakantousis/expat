@@ -66,6 +66,9 @@ public class Expat {
     Configuration config = ConfigurationBuilder.getConfiguration();
     // If the version contains SNAPSHOT, remove it
     version = version.replace("-SNAPSHOT", "");
+    // Remove minor version until HOPSWORKS-814 is fixed
+    version = version.substring(0, version.lastIndexOf("."));
+
     String migrations = config.getString("version-" + version.replace(".", ""));
 
     if (migrations == null) {
