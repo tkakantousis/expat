@@ -98,39 +98,44 @@ public final class ProcessExecutor {
     }
     processBuilder.redirectErrorStream(processDescriptor.redirectErrorStream());
   
-    Process process = processBuilder.start();
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     ByteArrayOutputStream errStream = new ByteArrayOutputStream();
     boolean ignoreStreams = processDescriptor.ignoreOutErrStreams();
-  
+
     StreamGobbler stderrGobbler;
     Future stderrGobblerFuture = null;
-  
-    if (!processDescriptor.redirectErrorStream()) {
-      stderrGobbler = new StreamGobbler(process.getErrorStream(), errStream, ignoreStreams);
-      stderrGobblerFuture = executorService.submit(stderrGobbler);
-    }
-  
-    StreamGobbler stdoutGobbler = new StreamGobbler(process.getInputStream(), outStream, ignoreStreams);
-    Future stdoutGobblerFuture = executorService.submit(stdoutGobbler);
-  
-    boolean exited = process.waitFor(processDescriptor.getWaitTimeout(), processDescriptor.getTimeoutUnit());
-  
-    if (exited) {
-      waitForGobbler(stdoutGobblerFuture);
-      if (stderrGobblerFuture != null) {
-        waitForGobbler(stderrGobblerFuture);
+
+    try {
+      Process process = processBuilder.start();
+
+      if (!processDescriptor.redirectErrorStream()) {
+        stderrGobbler = new StreamGobbler(process.getErrorStream(), errStream, ignoreStreams);
+        stderrGobblerFuture = executorService.submit(stderrGobbler);
       }
-      return new ProcessResult(process.exitValue(), true, stringifyStream(outStream, ignoreStreams),
-          stringifyStream(errStream, ignoreStreams));
-    } else {
-      process.destroyForcibly();
-      stdoutGobblerFuture.cancel(true);
-      if (stderrGobblerFuture != null) {
-        stderrGobblerFuture.cancel(true);
+
+      StreamGobbler stdoutGobbler = new StreamGobbler(process.getInputStream(), outStream, ignoreStreams);
+      Future stdoutGobblerFuture = executorService.submit(stdoutGobbler);
+
+      boolean exited = process.waitFor(processDescriptor.getWaitTimeout(), processDescriptor.getTimeoutUnit());
+
+      if (exited) {
+        waitForGobbler(stdoutGobblerFuture);
+        if (stderrGobblerFuture != null) {
+          waitForGobbler(stderrGobblerFuture);
+        }
+        return new ProcessResult(process.exitValue(), true, stringifyStream(outStream, ignoreStreams),
+            stringifyStream(errStream, ignoreStreams));
+      } else {
+        process.destroyForcibly();
+        stdoutGobblerFuture.cancel(true);
+        if (stderrGobblerFuture != null) {
+          stderrGobblerFuture.cancel(true);
+        }
+        return new ProcessResult(process.exitValue(), false, stringifyStream(outStream, ignoreStreams),
+            "Process timed-out");
       }
-      return new ProcessResult(process.exitValue(), false, stringifyStream(outStream, ignoreStreams),
-          "Process timed-out");
+    } catch (IOException e) {
+      throw new IOException(stringifyStream(outStream, ignoreStreams));
     }
   }
   

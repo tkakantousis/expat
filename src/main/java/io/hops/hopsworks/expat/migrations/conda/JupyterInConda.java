@@ -83,16 +83,21 @@ public class JupyterInConda implements MigrateStep {
               .addCommand(projectName)
               .addCommand(condaDir)
               .addCommand(condaUser)
-              .ignoreOutErrStreams(true)
-              .setWaitTimeout(1,  TimeUnit.MINUTES)
+              .ignoreOutErrStreams(false)
+              .setWaitTimeout(5,  TimeUnit.MINUTES)
               .build();
 
           processResult = ProcessExecutor.getExecutor().execute(jupyterInstallProc);
-          updateProjectPythonDeps(projectDepsUpdate, projectId);
+          if (processResult.getExitCode() == 0) {
+            updateProjectPythonDeps(projectDepsUpdate, projectId);
+          } else {
+            LOGGER.log(Level.ERROR, "Failed to install jupyter for project: " + projectName +
+                " " + processResult.getStdout());
+          }
         } catch (IOException e) {
           // Keep going
           LOGGER.log(Level.ERROR, "Failed to install jupyter for project: " + projectName +
-              " " + processResult.getStdout(), e);
+              " " + e.getMessage());
         }
       }
     } catch (SQLException | ConfigurationException e) {
