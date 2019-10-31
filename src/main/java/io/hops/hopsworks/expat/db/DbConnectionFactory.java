@@ -39,6 +39,7 @@ public class DbConnectionFactory {
     ds.setJdbcUrl(config.getString(ExpatConf.DATABASE_URL));
     ds.setUsername(config.getString(ExpatConf.DATABASE_USER_KEY));
     ds.setPassword(config.getString(ExpatConf.DATABASE_PASSWORD_KEY));
+    ds.setReadOnly(config.getBoolean(ExpatConf.DRY_RUN));
   }
 
   public static Connection getConnection() throws ConfigurationException, SQLException {
