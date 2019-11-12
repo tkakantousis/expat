@@ -95,6 +95,7 @@
 
     <version-11>
         io.hops.hopsworks.expat.migrations.elk.MultiTenantKibana
+        io.hops.hopsworks.expat.migrations.jobs.UpdateJobArgsConfiguration
     </version-11>
 </expat>
 
