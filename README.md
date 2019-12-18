@@ -6,15 +6,23 @@ the cluster definition contains the current version and the version to upgrade t
  that fall between the two Hopsworks versions, excluding the current version of course. For example. If the current 
  Hopsworks cluster to be upgraded is running version ``0.6.1`` and you are upgrading to ``1.0.0``, steps ``070``, 
  ``010`` and ``10`` will be executed. Bug fix version upgrades are currently not supported, you can track progress of
-  by following [HOPSWORKS-814](https://logicalclocks.atlassian.net/browse/HOPSWORKS-814).
+  by this feature following [HOPSWORKS-814](https://logicalclocks.atlassian.net/browse/HOPSWORKS-814).
 
 
-#Adding your migration step
-You need to define a class that implements the ``MigrateStep`` interface. Be careful to add the ``ShutdownHook`` in 
+# Adding your migration step
+
+You need to define a class that implements the ``MigrateStep`` interface and set the class in `expat-site-default.xml`.
+ Be careful to add the 
+``ShutdownHook`` in 
 your class and in the main method in ``Expat``, if needed.
 
-#Build
+# Build
+
 ``mvn clean package``
 
-#Run
+# Run
+
 Follow the steps of the [migrate](https://github.com/logicalclocks/hopsworks-chef/blob/master/recipes/migrate.rb) recipe.
+You may need to set the `dry_run` to true or false when you run expat.
+
+
