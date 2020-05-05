@@ -294,9 +294,9 @@
 
     <repositories>
         <repository>
-            <id>hops-release</id>
-            <name>Hops Release Repository</name>
-            <url>https://bbc1.sics.se/archiva/repository/Hops/</url>
+            <id>Hops</id>
+            <name>Hops Repository</name>
+            <url>https://archiva.hops.works/repository/Hops/</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
