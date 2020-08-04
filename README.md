@@ -11,10 +11,9 @@ the cluster definition contains the current version and the version to upgrade t
 
 # Adding your migration step
 
-You need to define a class that implements the ``MigrateStep`` interface and set the class in `expat-site-default.xml`.
- Be careful to add the 
-``ShutdownHook`` in 
-your class and in the main method in ``Expat``, if needed.
+1. You need to define a class that implements the ``MigrateStep`` interface
+2. Set the class in `expat-site-default.xml` and in expat-chef `expat-site.xml.erb`. Be careful to add the 
+``ShutdownHook`` in your class and in the main method in ``Expat``, if needed.
 
 # Build
 
