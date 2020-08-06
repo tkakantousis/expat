@@ -25,9 +25,11 @@ import io.hops.hopsworks.expat.db.DbConnectionFactory;
 import io.hops.hopsworks.expat.migrations.MigrateStep;
 import io.hops.hopsworks.expat.migrations.MigrationException;
 import io.hops.hopsworks.expat.migrations.RollbackException;
-import io.hops.hopsworks.expat.migrations.projects.provenance.HopsClient;
+import io.hops.hopsworks.expat.migrations.projects.util.HopsClient;
+import io.hops.hopsworks.expat.migrations.projects.util.XAttrHelper;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ipc.RemoteException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +41,9 @@ import org.elasticsearch.common.CheckedBiConsumer;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -76,6 +81,7 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
   private String hopsUser;
   SimpleDateFormat formatter;
   JAXBContext jaxbContext;
+  boolean dryrun = false;
   
   private void setup() throws ConfigurationException, SQLException, JAXBException {
     formatter = new SimpleDateFormat("yyyy-M-dd hh:mm:ss", Locale.ENGLISH);
@@ -89,6 +95,7 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
       throw new ConfigurationException(ExpatConf.HOPS_CLIENT_USER + " cannot be null");
     }
     dfso = HopsClient.getDFSO(hopsUser);
+    dryrun = conf.getBoolean(ExpatConf.DRY_RUN);
   }
   
   private void close() throws SQLException {
@@ -105,7 +112,11 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
     LOGGER.info("trainingdataset search migration");
     try {
       setup();
-      traverseElements(migrateTrainingdataset());
+      if(dryrun) {
+        traverseElements(dryRunTrainingdataset());
+      } else {
+        traverseElements(migrateTrainingdataset());
+      }
     } catch (Exception e) {
       throw new MigrationException("error", e);
     } finally {
@@ -122,7 +133,11 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
     LOGGER.info("trainingdataset search rollback");
     try {
       setup();
-      traverseElements(revertTrainingdataset());
+      if(dryrun) {
+        traverseElements(dryRunTrainingdataset());
+      } else {
+        traverseElements(revertTrainingdataset());
+      }
     } catch (Exception e) {
       throw new RollbackException("error", e);
     } finally {
@@ -166,6 +181,39 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
     }
   }
   
+  private CheckedBiConsumer<ResultSet, ResultSet, Exception> dryRunTrainingdataset() {
+    return (ResultSet allFeaturestoresResultSet, ResultSet allFSTrainingdatasetsResultSet) -> {
+      String projectName = getProjectName(allFeaturestoresResultSet);
+      String trainingdatasetName = allFSTrainingdatasetsResultSet.getString(GET_TRAININGDATASET_S_NAME);
+      int trainingdatasetVersion = allFSTrainingdatasetsResultSet.getInt(GET_TRAININGDATASET_S_VERSION);
+      String trainingdatasetPath = getTrainingdatasetPath(projectName, trainingdatasetName, trainingdatasetVersion);
+      
+      int featurestoreId = allFeaturestoresResultSet.getInt(GET_ALL_FEATURESTORES_S_ID);
+      String description = allFSTrainingdatasetsResultSet.getString(GET_TRAININGDATASET_S_DESCRIPTION);
+      Date createDate = formatter.parse(allFSTrainingdatasetsResultSet.getString(GET_TRAININGDATASET_S_CREATED));
+      String creator = getCreator(allFSTrainingdatasetsResultSet);
+      TrainingDatasetXAttrDTO xattr = new TrainingDatasetXAttrDTO(featurestoreId, description, createDate, creator);
+      byte[] val = jaxbMarshal(jaxbContext, xattr).getBytes();
+      if(val.length > 13500) {
+        LOGGER.warn("xattr too large - skipping attaching features to trainingdataset");
+        xattr = new TrainingDatasetXAttrDTO(featurestoreId, description, createDate, creator);
+      }
+      byte[] existingVal = dfso.getXAttr(new Path(trainingdatasetPath), "provenance.featurestore");
+      if(existingVal == null) {
+        LOGGER.info("featuregroup:{} rollbacked (no value)", trainingdatasetPath);
+      } else {
+        TrainingDatasetXAttrDTO existingXAttr = jaxbUnmarshal(jaxbContext, existingVal);
+        if(existingXAttr.equals(xattr)) {
+          LOGGER.info("trainingdataset:{} migrated (correct value)", trainingdatasetPath);
+        } else {
+          LOGGER.info("trainingdataset:{} bad value", trainingdatasetPath);
+          LOGGER.info("v1:{}", existingXAttr.toString());
+          LOGGER.info("v2:{}", xattr.toString());
+        }
+      }
+    };
+  }
+  
   private CheckedBiConsumer<ResultSet, ResultSet, Exception> migrateTrainingdataset() {
     return (ResultSet allFeaturestoresResultSet, ResultSet allFSTrainingdatasetsResultSet) -> {
       String projectName = getProjectName(allFeaturestoresResultSet);
@@ -179,13 +227,13 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
       Date createDate = formatter.parse(allFSTrainingdatasetsResultSet.getString(GET_TRAININGDATASET_S_CREATED));
       String creator = getCreator(allFSTrainingdatasetsResultSet);
       TrainingDatasetXAttrDTO xattr = new TrainingDatasetXAttrDTO(featurestoreId, description, createDate, creator);
-      byte[] val = jaxbParser(jaxbContext, xattr).getBytes();
+      byte[] val = jaxbMarshal(jaxbContext, xattr).getBytes();
       if(val.length > 13500) {
         LOGGER.warn("xattr too large - skipping attaching features to trainingdataset");
         xattr = new TrainingDatasetXAttrDTO(featurestoreId, description, createDate, creator);
-        val = jaxbParser(jaxbContext, xattr).getBytes();
+        val = jaxbMarshal(jaxbContext, xattr).getBytes();
       }
-      dfso.upsertXAttr(trainingdatasetPath, "provenance.featurestore", val);
+      XAttrHelper.upsertProvXAttr(dfso, trainingdatasetPath, "featurestore", val);
     };
   }
   
@@ -198,7 +246,7 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
       LOGGER.info("trainingdataset:{}", trainingdatasetPath);
   
       try {
-        dfso.removeXAttr(trainingdatasetPath, "provenance.featurestore");
+        dfso.removeXAttr(new Path(trainingdatasetPath), "provenance.featurestore");
       } catch(RemoteException ex) {
         if(ex.getMessage().startsWith("No matching attributes found for remove operation")) {
           //ignore
@@ -274,7 +322,13 @@ public class UpdateTrainingdatasetsForSearch implements MigrateStep {
     return context;
   }
   
-  private String jaxbParser(JAXBContext jaxbContext, TrainingDatasetXAttrDTO xattr) throws JAXBException {
+  private TrainingDatasetXAttrDTO jaxbUnmarshal(JAXBContext jaxbContext, byte[] val) throws JAXBException {
+    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+    StreamSource ss = new StreamSource(new StringReader(new String(val)));
+    return unmarshaller.unmarshal(ss, TrainingDatasetXAttrDTO.class).getValue();
+  }
+  
+  private String jaxbMarshal(JAXBContext jaxbContext, TrainingDatasetXAttrDTO xattr) throws JAXBException {
     Marshaller marshaller = jaxbContext.createMarshaller();
     StringWriter sw = new StringWriter();
     marshaller.marshal(xattr, sw);
