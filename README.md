@@ -25,7 +25,8 @@ Follow the steps of the [migrate](https://github.com/logicalclocks/hopsworks-che
 
 1. Copy tha expat archive from ./target to the machine where expat is to run
 2. Extract it
-3. Create the etc/expat-site.xml based on the provided template and set the variables. You do not need to set all of
+3. Copy the mysql connector from the hopsworks repo to ./lib
+4. Create the etc/expat-site.xml based on the provided template and set the variables. You do not need to set all of
 them, but you need at least the db credentials and domain. You might also need to set the expat dir (where you are
 running expat from). For testing, you probably need to grant access to user kthfs.
 You can do so with `GRANT ALL PRIVILEGES ON *.* to '<user>'@'%' identified by '<pass>';`
