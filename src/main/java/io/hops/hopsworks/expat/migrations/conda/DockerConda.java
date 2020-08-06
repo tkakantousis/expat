@@ -32,7 +32,7 @@ public class DockerConda implements MigrateStep {
   
   private void setup() throws ConfigurationException {
     Configuration config = ConfigurationBuilder.getConfiguration();
-    condaDir = config.getString(ExpatConf.CONDA_DIR);
+    condaDir = config.getString(ExpatConf.CONDA_DIR) + "/anaconda";
     condaUser = config.getString(ExpatConf.CONDA_USER);
     expatPath = config.getString(ExpatConf.EXPAT_PATH);
     hopsClientUser = config.getString(ExpatConf.HOPS_CLIENT_USER);
@@ -65,13 +65,13 @@ public class DockerConda implements MigrateStep {
             .ignoreOutErrStreams(false)
             .setWaitTimeout(2, TimeUnit.MINUTES)
             .build();
-  
+          
           ProcessResult processResult = ProcessExecutor.getExecutor().execute(convaEnvMigrateProc);
           if (processResult.getExitCode() == 0) {
             LOGGER.info("Successfully exported Python env for project: " + projectName);
           } else {
             LOGGER.error("Failed to export Python env for project: " + projectName +
-              " " + processResult.getStdout());
+              " " + processResult.getStderr());
           }
         } catch (IOException e) {
           // Keep going
