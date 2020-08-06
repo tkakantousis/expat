@@ -16,7 +16,6 @@
  */
 package io.hops.hopsworks.expat.migrations.conda;
 
-import io.hops.hopsworks.common.util.Settings;
 import io.hops.hopsworks.expat.configuration.ConfigurationBuilder;
 import io.hops.hopsworks.expat.configuration.ExpatConf;
 import io.hops.hopsworks.expat.db.DbConnectionFactory;
@@ -73,7 +72,7 @@ public class CreateKagentLogsIndeces implements MigrateStep {
       // Create Kibana index template
       for (String projectName : projects) {
         try {
-          Utils.createKibanaIndexPattern(projectName, Settings.ELASTIC_KAGENT_INDEX_PATTERN, httpClient, kibana);
+          Utils.createKibanaIndexPattern(projectName, Utils.ELASTIC_KAGENT_INDEX_PATTERN, httpClient, kibana);
         } catch (IOException ex) {
           LOGGER.error("Ooops could not create index-pattern for " + projectName + " Moving on...", ex);
         }
@@ -92,7 +91,7 @@ public class CreateKagentLogsIndeces implements MigrateStep {
       
       for (String projectName : projects) {
         try {
-          Utils.deleteKibanaIndexPattern(projectName, Settings.ELASTIC_KAGENT_INDEX_PATTERN, httpClient, kibana);
+          Utils.deleteKibanaIndexPattern(projectName, Utils.ELASTIC_KAGENT_INDEX_PATTERN, httpClient, kibana);
         } catch (IOException ex) {
           LOGGER.error("Ooops could not delete index-pattern for " + projectName + " Moving on...", ex);
         }

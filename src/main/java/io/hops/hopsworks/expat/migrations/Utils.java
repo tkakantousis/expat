@@ -33,6 +33,9 @@ import java.io.IOException;
 public class Utils {
   private static final Logger LOGGER = LogManager.getLogger(Utils.class);
   
+  public static final String ELASTIC_KAGENT_INDEX = "kagent";
+  public static final String ELASTIC_KAGENT_INDEX_PATTERN = "_" + ELASTIC_KAGENT_INDEX + "-*";
+  
   public static void createKibanaIndexPattern(String projectName,  String indexPattern, CloseableHttpClient httpClient,
       HttpHost kibana) throws IOException {
     createKibanaIndexPattern(projectName, indexPattern, httpClient, kibana,
