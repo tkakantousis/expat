@@ -36,7 +36,7 @@ import io.hops.hopsworks.expat.db.dao.project.ExpatProject;
 import io.hops.hopsworks.expat.db.dao.project.ExpatProjectFacade;
 import io.hops.hopsworks.expat.db.dao.project.ExpatProjectMember;
 import io.hops.hopsworks.expat.db.dao.project.ExpatProjectMemberFacade;
-import io.hops.hopsworks.expat.migrations.projects.provenance.HopsClient;
+import io.hops.hopsworks.expat.migrations.projects.util.HopsClient;
 import io.hops.hopsworks.persistence.entity.dataset.DatasetAccessPermission;
 import io.hops.hopsworks.persistence.entity.project.team.ProjectRoleTypes;
 import org.apache.commons.configuration2.Configuration;
@@ -139,7 +139,8 @@ public class FixDatasetPermissionHelper {
       hdfsUser, dataset.getPermission());
     List<ExpatDatasetSharedWith> datasetSharedWithList = this.datasetSharedWithFacade.findByDatasetId(dataset.getId());
     for (ExpatDatasetSharedWith datasetSharedWith : datasetSharedWithList) {
-      if (dataset.getPublicDs() > 0 && !DatasetAccessPermission.READ_ONLY.getValue().equals(datasetSharedWith.getPermission())) {
+      if (dataset.getPublicDs() > 0 &&
+        !DatasetAccessPermission.READ_ONLY.getValue().equals(datasetSharedWith.getPermission())) {
         datasetSharedWithFacade
           .updatePermission(datasetSharedWith.getId(), DatasetAccessPermission.READ_ONLY.getValue());
         datasetSharedWith = datasetSharedWithFacade.find(datasetSharedWith.getId());

@@ -17,7 +17,6 @@
 package io.hops.hopsworks.expat.db.dao.hdfs.user;
 
 import io.hops.hopsworks.expat.db.dao.ExpatAbstractFacade;
-import io.hops.hopsworks.expat.db.dao.dataset.ExpatDataset;
 
 import java.sql.Connection;
 import java.sql.JDBCType;
