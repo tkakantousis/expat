@@ -24,7 +24,9 @@ import java.util.Date;
 
 public class ExpatProjectMember extends ExpatAbstractEntity<ExpatProjectMember> {
   private Integer projectId;
+  private String projectName;
   private String teamMember;
+  private String username;
   private String teamRole;
   private Date timestamp;
   
@@ -39,12 +41,28 @@ public class ExpatProjectMember extends ExpatAbstractEntity<ExpatProjectMember> 
     this.projectId = projectId;
   }
   
+  public String getProjectName() {
+    return projectName;
+  }
+  
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
+  }
+  
   public String getTeamMember() {
     return teamMember;
   }
   
   public void setTeamMember(String teamMember) {
     this.teamMember = teamMember;
+  }
+  
+  public String getUsername() {
+    return username;
+  }
+  
+  public void setUsername(String username) {
+    this.username = username;
   }
   
   public String getTeamRole() {
@@ -66,7 +84,9 @@ public class ExpatProjectMember extends ExpatAbstractEntity<ExpatProjectMember> 
   @Override
   public ExpatProjectMember getEntity(ResultSet resultSet) throws SQLException {
     this.projectId = resultSet.getInt("project_id");
+    this.projectName = resultSet.getString("projectname");
     this.teamMember = resultSet.getString("team_member");
+    this.username = resultSet.getString("username");
     this.teamRole = resultSet.getString("team_role");
     this.timestamp = resultSet.getDate("added");
     return this;

@@ -20,6 +20,7 @@ import io.hops.hopsworks.expat.db.dao.ExpatAbstractEntity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class ExpatHdfsUser extends ExpatAbstractEntity<ExpatHdfsUser> {
   private Integer id;
@@ -49,5 +50,17 @@ public class ExpatHdfsUser extends ExpatAbstractEntity<ExpatHdfsUser> {
     this.id = resultSet.getInt("id");
     this.name = resultSet.getString("name");
     return this;
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ExpatHdfsUser hdfsUser = (ExpatHdfsUser) o;
+    return Objects.equals(id, hdfsUser.id);
   }
 }

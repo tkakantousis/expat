@@ -37,11 +37,27 @@ public class FixDatasetPermission implements MigrateStep {
   
   @Override
   public void migrate() throws MigrationException {
-  
+    LOGGER.info("Acl Migration started...");
+    try {
+      setup();
+      fixDatasetPermissionHelper.fixAllProjects();
+    } catch (Exception e) {
+      throw new MigrationException("error", e);
+    } finally {
+      fixDatasetPermissionHelper.close();
+    }
   }
   
   @Override
   public void rollback() throws RollbackException {
-  
+    LOGGER.info("Acl Rollback started...");
+    try {
+      setup();
+      fixDatasetPermissionHelper.rollbackAllProject();
+    } catch (Exception e) {
+      throw new RollbackException("error", e);
+    } finally {
+      fixDatasetPermissionHelper.close();
+    }
   }
 }

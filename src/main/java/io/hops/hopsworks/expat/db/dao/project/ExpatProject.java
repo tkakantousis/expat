@@ -192,7 +192,7 @@ public class ExpatProject extends ExpatAbstractEntity<ExpatProject> {
   @Override
   public ExpatProject getEntity(ResultSet resultSet) throws SQLException {
     this.id = resultSet.getInt("id");
-    this.name = resultSet.getString("name");
+    this.name = resultSet.getString("projectname");
     this.owner = resultSet.getString("email");
     this.created = resultSet.getDate("created");
     this.retentionPeriod = resultSet.getDate("retention_period");

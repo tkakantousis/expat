@@ -26,7 +26,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ExpatProjectMemberFacade extends ExpatAbstractFacade<ExpatProjectMember> {
-  private static final String GET_PROJECT_TEAM_BY_PROJECT_ID = "SELECT * FROM project_team WHERE project_id=?";
+  private static final String GET_PROJECT_TEAM_BY_PROJECT_ID = "SELECT t.project_id, t.team_member, t.added, " +
+    "t.team_role, p.projectname, u.username FROM project_team as t JOIN project as p ON " +
+    "project_id=id JOIN users as u ON team_member=email WHERE project_id=?";
   private Connection connection;
   
   public ExpatProjectMemberFacade(Class<ExpatProjectMember> entityClass)

@@ -25,6 +25,8 @@ import java.util.List;
 
 public class ExpatHdfsUserFacade extends ExpatAbstractFacade<ExpatHdfsUser> {
   private static final String FIND_BY_NAME = "SELECT * FROM hops.hdfs_users WHERE name = ?";
+  private static final String FIND_ALL_IN_GROUP = "SELECT * FROM hops.hdfs_users JOIN hops.hdfs_users_groups ON " +
+    "id=user_id WHERE group_id = ?";
   private Connection connection;
   protected ExpatHdfsUserFacade(Class<ExpatHdfsUser> entityClass) {
     super(entityClass);
@@ -63,5 +65,11 @@ public class ExpatHdfsUserFacade extends ExpatAbstractFacade<ExpatHdfsUser> {
   
   public ExpatHdfsUser find(Integer id) throws IllegalAccessException, SQLException, InstantiationException {
     return this.findById(id, JDBCType.INTEGER);
+  }
+  
+  public List<ExpatHdfsUser> getUsersInGroup(ExpatHdfsGroup group) throws IllegalAccessException, SQLException,
+    InstantiationException {
+    List<ExpatHdfsUser> users = this.findByQuery(FIND_ALL_IN_GROUP, group.getId(), JDBCType.BIGINT);
+    return users;
   }
 }
