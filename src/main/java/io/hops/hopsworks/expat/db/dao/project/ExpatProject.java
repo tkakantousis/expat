@@ -193,7 +193,7 @@ public class ExpatProject extends ExpatAbstractEntity<ExpatProject> {
   public ExpatProject getEntity(ResultSet resultSet) throws SQLException {
     this.id = resultSet.getInt("id");
     this.name = resultSet.getString("projectname");
-    this.owner = resultSet.getString("email");
+    this.owner = resultSet.getString("username");
     this.created = resultSet.getDate("created");
     this.retentionPeriod = resultSet.getDate("retention_period");
     this.deleted = resultSet.getBoolean("deleted");
@@ -210,5 +210,29 @@ public class ExpatProject extends ExpatAbstractEntity<ExpatProject> {
     this.archived = resultSet.getBoolean("archived");
     this.logs = resultSet.getBoolean("logs");
     return this;
+  }
+  
+  @Override
+  public String toString() {
+    return "ExpatProject{" +
+      "id=" + id +
+      ", name='" + name + '\'' +
+      ", owner='" + owner + '\'' +
+      ", created=" + created +
+      ", retentionPeriod=" + retentionPeriod +
+      ", deleted=" + deleted +
+      ", paymentType='" + paymentType + '\'' +
+      ", pythonVersion='" + pythonVersion + '\'' +
+      ", description='" + description + '\'' +
+      ", kafkaMaxNumTopics=" + kafkaMaxNumTopics +
+      ", lastQuotaUpdate=" + lastQuotaUpdate +
+      ", dockerImage='" + dockerImage + '\'' +
+      ", inodePId=" + inodePId +
+      ", inodeName='" + inodeName + '\'' +
+      ", partitionId=" + partitionId +
+      ", conda=" + conda +
+      ", archived=" + archived +
+      ", logs=" + logs +
+      '}';
   }
 }

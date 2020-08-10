@@ -53,7 +53,7 @@ public class ExpatHdfsGroupFacade extends ExpatAbstractFacade<ExpatHdfsGroup> {
   public ExpatHdfsGroup findByName(String name) throws IllegalAccessException, SQLException, InstantiationException {
     List<ExpatHdfsGroup> hdfsGroupList = this.findByQuery(FIND_BY_NAME, name, JDBCType.VARCHAR);
     if (hdfsGroupList.isEmpty()) {
-      throw new IllegalStateException("No result found");
+      return null;
     }
     if (hdfsGroupList.size() > 1) {
       throw new IllegalStateException("More than one results found");

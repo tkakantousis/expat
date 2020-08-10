@@ -16,12 +16,23 @@
  */
 package io.hops.hopsworks.expat.db.dao;
 
+import com.mysql.jdbc.NotImplemented;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +74,7 @@ public abstract class ExpatAbstractFacade<E extends ExpatAbstractEntity> {
     InstantiationException {
     List<E> resultList = findByQuery(this.findByIdQuery(), ids, sqlType);
     if (resultList.isEmpty()) {
-      throw new IllegalStateException("No result found");
+      return null;
     }
     if (resultList.size() > 1) {
       throw new IllegalStateException("More than one results found");
@@ -84,7 +95,7 @@ public abstract class ExpatAbstractFacade<E extends ExpatAbstractEntity> {
     try {
       preparedStatement = getConnection().prepareStatement(query);
       for (int i = 0; i < params.length; i++) {
-        preparedStatement.setObject(i, params[i], sqlType[i]);
+        setObject(preparedStatement, i + 1, params[i], sqlType[i]);
       }
       resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
@@ -111,7 +122,7 @@ public abstract class ExpatAbstractFacade<E extends ExpatAbstractEntity> {
     try {
       preparedStatement = getConnection().prepareStatement(query);
       for (int i = 0; i < params.length; i++) {
-        preparedStatement.setObject(i, params[i], sqlType[i]);
+        setObject(preparedStatement, i + 1, params[i], sqlType[i]);
       }
       preparedStatement.execute();
       getConnection().commit();
@@ -131,4 +142,55 @@ public abstract class ExpatAbstractFacade<E extends ExpatAbstractEntity> {
   public abstract String findAllQuery();
   
   public abstract String findByIdQuery();
+  
+  private void setObject(PreparedStatement preparedStatement, int i, Object parameterObj, JDBCType sqlType)
+    throws SQLException {
+    try {
+      preparedStatement.setObject(i, parameterObj, sqlType);
+      return;
+    } catch (SQLFeatureNotSupportedException e) {
+      //setObject not implemented
+    }
+    if (parameterObj == null) {
+      preparedStatement.setNull(i, 1111);
+    } else if (parameterObj instanceof Byte) {
+      preparedStatement.setInt(i, ((Byte) parameterObj).intValue());
+    } else if (parameterObj instanceof String) {
+      preparedStatement.setString(i, (String) parameterObj);
+    } else if (parameterObj instanceof BigDecimal) {
+      preparedStatement.setBigDecimal(i, (BigDecimal) parameterObj);
+    } else if (parameterObj instanceof Short) {
+      preparedStatement.setShort(i, (Short) parameterObj);
+    } else if (parameterObj instanceof Integer) {
+      preparedStatement.setInt(i, (Integer) parameterObj);
+    } else if (parameterObj instanceof Long) {
+      preparedStatement.setLong(i, (Long) parameterObj);
+    } else if (parameterObj instanceof Float) {
+      preparedStatement.setFloat(i, (Float) parameterObj);
+    } else if (parameterObj instanceof Double) {
+      preparedStatement.setDouble(i, (Double) parameterObj);
+    } else if (parameterObj instanceof byte[]) {
+      preparedStatement.setBytes(i, (byte[]) parameterObj);
+    } else if (parameterObj instanceof Date) {
+      preparedStatement.setDate(i, (Date) parameterObj);
+    } else if (parameterObj instanceof Time) {
+      preparedStatement.setTime(i, (Time) parameterObj);
+    } else if (parameterObj instanceof Timestamp) {
+      preparedStatement.setTimestamp(i, (Timestamp) parameterObj);
+    } else if (parameterObj instanceof Boolean) {
+      preparedStatement.setBoolean(i, (Boolean) parameterObj);
+    } else if (parameterObj instanceof InputStream) {
+      preparedStatement.setBinaryStream(i, (InputStream) parameterObj, -1);
+    } else if (parameterObj instanceof Blob) {
+      preparedStatement.setBlob(i, (Blob) parameterObj);
+    } else if (parameterObj instanceof Clob) {
+      preparedStatement.setClob(i, (Clob) parameterObj);
+    } else if (parameterObj instanceof java.util.Date) {
+      preparedStatement.setTimestamp(i, new Timestamp(((java.util.Date) parameterObj).getTime()));
+    } else if (parameterObj instanceof BigInteger) {
+      preparedStatement.setString(i, parameterObj.toString());
+    } else {
+      throw new NotImplemented();
+    }
+  }
 }
