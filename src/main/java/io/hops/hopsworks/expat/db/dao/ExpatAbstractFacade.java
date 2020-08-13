@@ -82,8 +82,8 @@ public abstract class ExpatAbstractFacade<E extends ExpatAbstractEntity> {
     return resultList.get(0);
   }
   
-  public List<E> findByQuery(String query, Object param, JDBCType sqlType)
-    throws SQLException, IllegalAccessException, InstantiationException {
+  public List<E> findByQuery(String query, Object param, JDBCType sqlType) throws SQLException, IllegalAccessException,
+    InstantiationException {
     return findByQuery(query, new Object[]{param}, new JDBCType[]{sqlType});
   }
   
@@ -125,7 +125,6 @@ public abstract class ExpatAbstractFacade<E extends ExpatAbstractEntity> {
         setObject(preparedStatement, i + 1, params[i], sqlType[i]);
       }
       preparedStatement.execute();
-      getConnection().commit();
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();

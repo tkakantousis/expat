@@ -66,7 +66,7 @@ public class ExpatDatasetSharedWithFacade extends ExpatAbstractFacade<ExpatDatas
   }
   
   public void updatePermission(Integer id, String permission) throws SQLException {
-    this.update(UPDATE_DATASET_PERMISSION, new Object[]{id, permission},
-      new JDBCType[]{JDBCType.INTEGER, JDBCType.VARCHAR});
+    this.update(UPDATE_DATASET_PERMISSION, new Object[]{permission, id},
+      new JDBCType[]{JDBCType.VARCHAR, JDBCType.INTEGER});
   }
 }

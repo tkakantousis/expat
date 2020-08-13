@@ -294,7 +294,7 @@ public class FixDatasetPermissionHelper {
     
     setDatasetAcl(datasetAclGroup, path, dfso);
   
-    setPermission(dataset);
+    dataset = setPermission(dataset);
     
     List<ExpatProjectMember> datasetTeamCollection = new ArrayList<>();
     List<ExpatProjectMember> projectMembers = this.projectMemberFacade.findByProjectId(expatProject.getId());
@@ -315,7 +315,8 @@ public class FixDatasetPermissionHelper {
     testAndRemoveUsersFromGroup(datasetTeamCollection, hdfsDatasetGroup, hdfsDatasetAclGroup, hdfsUser, dfso);
   }
   
-  private void setPermission(ExpatDataset dataset) throws SQLException, InstantiationException, IllegalAccessException {
+  private ExpatDataset setPermission(ExpatDataset dataset) throws SQLException, InstantiationException,
+    IllegalAccessException {
     if (dataset.getPublicDs() > 0 && !DatasetAccessPermission.READ_ONLY.getValue().equals(dataset.getPermission())) {
       if (!dryrun) {
         datasetFacade.updatePermission(dataset.getId(), DatasetAccessPermission.READ_ONLY.getValue());
@@ -334,6 +335,7 @@ public class FixDatasetPermissionHelper {
       }
       LOGGER.info("Updated dataset permission for default dataset id={} to editable.", dataset.getId());
     }
+    return dataset;
   }
   
   private boolean isDefaultDataset(String datasetName) {
@@ -490,7 +492,7 @@ public class FixDatasetPermissionHelper {
   
   private List<ExpatHdfsUser> getMembers(ExpatHdfsGroup group) throws IllegalAccessException, SQLException,
     InstantiationException {
-    return !dryrun? this.hdfsUserFacade.getUsersInGroup(group) : new ArrayList<>();
+    return this.hdfsUserFacade.getUsersInGroup(group);
   }
   
   private void testFsPermission(ExpatDataset dataset, Path path, ExpatHdfsInode inode, DistributedFileSystemOps dfso)
@@ -615,8 +617,9 @@ public class FixDatasetPermissionHelper {
   private ExpatHdfsGroup getOrCreateGroup(String group, DistributedFileSystemOps dfso) throws IllegalAccessException,
     SQLException, InstantiationException, IOException {
     ExpatHdfsGroup hdfsGroup = this.hdfsGroupFacade.findByName(group);
-    if (hdfsGroup == null) {
+    if (!dryrun && hdfsGroup == null) {
       addGroup(group, dfso);
+      hdfsGroup = this.hdfsGroupFacade.findByName(group);
     }
     return hdfsGroup;
   }
@@ -624,8 +627,9 @@ public class FixDatasetPermissionHelper {
   private ExpatHdfsUser getOrCreateUser(String username, DistributedFileSystemOps dfso) throws IllegalAccessException,
     SQLException, InstantiationException, IOException {
     ExpatHdfsUser hdfsUser = this.hdfsUserFacade.findByName(username);
-    if (hdfsUser == null) {
+    if (!dryrun && hdfsUser == null) {
       addUser(username, dfso);
+      hdfsUser = this.hdfsUserFacade.findByName(username);
     }
     return hdfsUser;
   }
