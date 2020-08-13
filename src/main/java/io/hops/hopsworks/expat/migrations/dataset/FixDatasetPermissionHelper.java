@@ -485,7 +485,7 @@ public class FixDatasetPermissionHelper {
         }
         break;
       default:
-        LOGGER.warn("Found a dataset with an unknown permission: group={0}, project={1}", hdfsDatasetGroup,
+        LOGGER.warn("Found a dataset with an unknown permission: group={}, project={}", hdfsDatasetGroup,
           projectTeam.getProjectName());
     }
   }
