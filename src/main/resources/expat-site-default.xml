@@ -23,7 +23,7 @@
     </expat>
 
     <database>
-        <url>jdbc:mysql://10.0.2.15:3306/hopsworks</url>
+        <url>jdbc:mysql://192.168.100.101:3306/hopsworks</url>
         <driver>com.mysql.jdbc.Driver</driver>
         <user>user</user>
         <password>password</password>
