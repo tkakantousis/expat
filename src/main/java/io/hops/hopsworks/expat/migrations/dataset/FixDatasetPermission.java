@@ -42,7 +42,7 @@ public class FixDatasetPermission implements MigrateStep {
       setup();
       fixDatasetPermissionHelper.fixAllProjects();
     } catch (Exception e) {
-      throw new MigrationException("error", e);
+      throw new MigrationException("Acl error", e);
     } finally {
       fixDatasetPermissionHelper.close();
     }
@@ -55,7 +55,7 @@ public class FixDatasetPermission implements MigrateStep {
       setup();
       fixDatasetPermissionHelper.rollbackAllProject();
     } catch (Exception e) {
-      throw new RollbackException("error", e);
+      throw new RollbackException("Acl error", e);
     } finally {
       fixDatasetPermissionHelper.close();
     }
