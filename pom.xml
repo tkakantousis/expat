@@ -265,6 +265,7 @@
                             <target>
                                 <chmod file="target/dist/bin/expat" perm="755"/>
                                 <chmod file="target/dist/bin/jupyter_migrate.sh" perm="755"/>
+                                <chmod file="target/dist/bin/conda_env_migrate.sh" perm="755"/>
                             </target>
                         </configuration>
                         <goals>
