@@ -37,7 +37,7 @@ import java.util.List;
 
 public class JobsDockerCommandArgsMigration implements MigrateStep {
 
-  private static final Logger LOGGER = LogManager.getLogger(JobsDockerResourcesMigration.class);
+  private static final Logger LOGGER = LogManager.getLogger(JobsDockerCommandArgsMigration.class);
   private final static String GET_ALL_DOCKER_CONFIGURATIONS =
           "SELECT id, json_config FROM jobs WHERE type = ?";
   private final static String UPDATE_SPECIFIC_JOB_JSON_CONFIG = "UPDATE jobs SET json_config = ? WHERE id = ?";
